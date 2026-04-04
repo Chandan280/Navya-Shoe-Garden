@@ -65,7 +65,7 @@ const AdminProducts = () => {
   };
 
   const fetchCategories = async () => {
-    const { data } = await supabase.from("categories").select("*").order("sort_order");
+    const { data } = await supabase.from("categories").select("*").order("name");
     if (data) setCategories(data);
   };
 
@@ -79,9 +79,36 @@ const AdminProducts = () => {
   };
 
   // Only show leaf categories (no children)
-  const leafCategories = categories.filter(
-    (cat) => !categories.some((c) => c.parent_id === cat.id)
+ const leafCategories = categories.filter((cat) => {
+  const hasChildren = categories.some((c) => c.parent_id === cat.id);
+  const path = getCategoryPath(cat.id);
+
+  return (
+    // show leaf categories
+    (!hasChildren && cat.parent_id !== null) ||
+
+    // ALSO show these two manually
+    path === "Men > Shoes" ||
+    path === "Women > Shoes"
   );
+});
+
+leafCategories.sort((a, b) => {
+  const pathA = getCategoryPath(a.id).toLowerCase();
+  const pathB = getCategoryPath(b.id).toLowerCase();
+
+  const getGroupIndex = (path) => {
+    if (path.startsWith("men")) return 0;
+    if (path.startsWith("women")) return 1;
+    if (path.startsWith("kids")) return 2;
+    return 3;
+  };
+
+  const groupDiff = getGroupIndex(pathA) - getGroupIndex(pathB);
+  if (groupDiff !== 0) return groupDiff;
+
+  return pathA.localeCompare(pathB);
+});
 
   const resetForm = () => {
     setName("");
@@ -232,13 +259,13 @@ const AdminProducts = () => {
 
               <div className="space-y-2">
                 <Label className="text-sm font-light">Category</Label>
-                <Select value={categoryId} onValueChange={setCategoryId}>
+                <Select value={categoryId || ""} onValueChange={(v) => setCategoryId(String(v))}>
                   <SelectTrigger className="rounded-none">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
                     {leafCategories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
+                      <SelectItem key={cat.id} value={String(cat.id)}>
                         {getCategoryPath(cat.id)}
                       </SelectItem>
                     ))}
