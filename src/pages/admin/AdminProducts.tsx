@@ -178,18 +178,19 @@ leafCategories.sort((a, b) => {
     const discVal = parseFloat(discountPercent) || 0;
     const finalPrice = mrpVal - (mrpVal * discVal) / 100;
 
-    const productData = {
-      name,
-      description: description || null,
-      category_id: categoryId || null,
-      mrp: mrpVal,
-      discount_percent: discVal,
-      sizes,
-      colors,
-      stock: parseInt(stock) || 0,
-      is_new: isNew,
-      images,
-    };
+const productData = {
+  name,
+  description: description || null,
+  category_id: categoryId || null,
+  mrp: mrpVal,
+  discount_percent: discVal, // ✅ FIXED
+  final_price: finalPrice, // ✅ ADD THIS
+  sizes,
+  colors,
+  stock: parseInt(stock) || 0,
+  is_new: isNew,
+  images,
+};
 
     if (editingId) {
       const { error } = await supabase.from("products").update(productData).eq("id", editingId);
@@ -370,7 +371,7 @@ leafCategories.sort((a, b) => {
                       ×
                     </button>
                   </div>
-                ))}
+                ))} 
                 <label className="w-20 h-20 border border-dashed border-border flex items-center justify-center cursor-pointer hover:bg-muted transition-colors">
                   <Upload className="w-5 h-5 text-muted-foreground" />
                   <input type="file" multiple accept="image/*" onChange={handleImageUpload} className="hidden" />

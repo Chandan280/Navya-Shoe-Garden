@@ -11,7 +11,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, Heart } from "lucide-react";
 import {
-  Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import ImageZoom from "../components/product/ImageZoom";
 
@@ -32,13 +37,17 @@ interface Product {
 
 const ProductDetail = () => {
   const { productId } = useParams();
+
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
+
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
@@ -46,26 +55,38 @@ const ProductDetail = () => {
   const { toggleItem, isInWishlist } = useWishlist();
   const { toast } = useToast();
 
+  // ================= FETCH =================
   useEffect(() => {
     const fetchProduct = async () => {
       if (!productId) return;
-      const { data } = await supabase.from("products").select("*").eq("id", productId).single();
+
+      const { data } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", productId)
+        .single();
+
       if (data) {
         setProduct(data);
         if (data.sizes?.[0]) setSelectedSize(data.sizes[0]);
         if (data.colors?.[0]) setSelectedColor(data.colors[0]);
       }
+
       setLoading(false);
     };
+
     fetchProduct();
   }, [productId]);
 
+  // ================= CART =================
   const handleAddToCart = () => {
     if (!product) return;
+
     if (!selectedSize || !selectedColor) {
-      toast({ title: "Please select size and color", variant: "destructive" });
+      toast({ title: "Select size & color", variant: "destructive" });
       return;
     }
+
     addItem({
       productId: product.id,
       name: product.name,
@@ -76,210 +97,208 @@ const ProductDetail = () => {
       size: selectedSize,
       color: selectedColor,
     });
-    toast({ title: "Added to bag!" });
+
+    toast({ title: "Added to bag 🛍️" });
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
-  const handleTouchMove = (e: React.TouchEvent) => { touchEndX.current = e.touches[0].clientX; };
+  // ================= TOUCH SWIPE =================
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
   const handleTouchEnd = () => {
     if (!touchStartX.current || !touchEndX.current) return;
+
     const diff = touchStartX.current - touchEndX.current;
     const images = product?.images || [];
+
     if (Math.abs(diff) > 50) {
-      if (diff > 0) setCurrentImageIndex((p) => (p + 1) % images.length);
-      else setCurrentImageIndex((p) => (p - 1 + images.length) % images.length);
+      if (diff > 0) {
+        setCurrentImageIndex((p) => (p + 1) % images.length);
+      } else {
+        setCurrentImageIndex((p) => (p - 1 + images.length) % images.length);
+      }
     }
+
     touchStartX.current = null;
     touchEndX.current = null;
   };
 
+  // ================= STATES =================
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="flex items-center justify-center py-24"><p className="text-muted-foreground">Loading...</p></div>
-        <Footer />
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
       </div>
     );
   }
 
-  if (!product) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="flex items-center justify-center py-24"><p className="text-muted-foreground">Product not found.</p></div>
-        <Footer />
-      </div>
-    );
-  }
+  if (!product) return <div>Product not found</div>;
 
   const images = product.images || [];
   const inWishlist = isInWishlist(product.id);
 
+  // ================= UI =================
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       <Header />
-      
-      <main className="pt-6">
-        <section className="w-full px-6">
-          <div className="lg:hidden mb-6">
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem><BreadcrumbLink asChild><Link to="/">Home</Link></BreadcrumbLink></BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem><BreadcrumbPage>{product.name}</BreadcrumbPage></BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-            {/* Image Gallery */}
-            <div className="w-full">
-              {/* Desktop */}
-              <div className="hidden lg:block">
-                <div className="space-y-4">
-                  {images.map((image, index) => (
-                    <div key={index} className="w-full aspect-square overflow-hidden cursor-pointer group" onClick={() => { setCurrentImageIndex(index); setIsZoomOpen(true); }}>
-                      <img src={image} alt={`${product.name} view ${index + 1}`} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                    </div>
-                  ))}
-                  {images.length === 0 && <div className="w-full aspect-square bg-muted flex items-center justify-center"><p className="text-muted-foreground text-sm">No images</p></div>}
+
+      <main className="pt-10 px-6 lg:px-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+
+          {/* ================= IMAGES ================= */}
+          <div>
+            {/* Desktop */}
+            <div className="hidden lg:block space-y-8">
+              {images.map((image, index) => (
+                <div
+                  key={index}
+                  className="aspect-square bg-white rounded-2xl flex items-center justify-center relative overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-500"
+                  onClick={() => {
+                    setCurrentImageIndex(index);
+                    setIsZoomOpen(true);
+                  }}
+                  onMouseMove={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x =
+                      ((e.clientX - rect.left) / rect.width) * 100;
+                    const y =
+                      ((e.clientY - rect.top) / rect.height) * 100;
+
+                    e.currentTarget.style.setProperty("--x", `${x}%`);
+                    e.currentTarget.style.setProperty("--y", `${y}%`);
+                  }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-b from-white to-gray-50" />
+
+                  <img
+                    src={image}
+                    alt=""
+                    className="relative z-10 max-w-[85%] max-h-[85%] object-contain transition-all duration-700 ease-out group-hover:scale-125 drop-shadow-[0_30px_60px_rgba(0,0,0,0.2)]"
+                    style={{ transformOrigin: "var(--x) var(--y)" }}
+                  />
+
+                  <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black/20 to-transparent blur-2xl opacity-50" />
                 </div>
-              </div>
-              {/* Mobile */}
-              <div className="lg:hidden">
-                <div className="relative">
-                  <div className="w-full aspect-square overflow-hidden cursor-pointer touch-pan-y" onClick={() => setIsZoomOpen(true)} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
-                    {images[currentImageIndex] ? (
-                      <img src={images[currentImageIndex]} alt={product.name} className="w-full h-full object-cover select-none" />
-                    ) : (
-                      <div className="w-full h-full bg-muted flex items-center justify-center"><p className="text-muted-foreground text-sm">No image</p></div>
-                    )}
-                  </div>
-                  {images.length > 1 && (
-                    <div className="flex justify-center mt-4 gap-2">
-                      {images.map((_, index) => (
-                        <button key={index} onClick={() => setCurrentImageIndex(index)} className={`w-2 h-2 rounded-full transition-colors ${index === currentImageIndex ? 'bg-foreground' : 'bg-muted'}`} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-              <ImageZoom images={images} initialIndex={currentImageIndex} isOpen={isZoomOpen} onClose={() => setIsZoomOpen(false)} />
+              ))}
             </div>
-            
-            {/* Product Info */}
-            <div className="lg:pl-12 mt-8 lg:mt-0 lg:sticky lg:top-6 lg:h-fit">
-              <div className="space-y-6">
-                <div className="hidden lg:block">
-                  <Breadcrumb>
-                    <BreadcrumbList>
-                      <BreadcrumbItem><BreadcrumbLink asChild><Link to="/">Home</Link></BreadcrumbLink></BreadcrumbItem>
-                      <BreadcrumbSeparator />
-                      <BreadcrumbItem><BreadcrumbPage>{product.name}</BreadcrumbPage></BreadcrumbItem>
-                    </BreadcrumbList>
-                  </Breadcrumb>
-                </div>
 
-                <div className="space-y-2">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h1 className="text-3xl md:text-4xl font-medium tracking-wide text-foreground">{product.name}</h1>
-                    </div>
-                    <div className="text-right space-y-1">
-                      {product.discount_percent && product.discount_percent > 0 ? (
-                        <>
-                         <p className="text-sm text-gray-400 line-through">₹{product.mrp}</p>
-                         <p className="text-2xl font-medium">₹{product.final_price}</p>
-                         <p className="text-xs text-green-600">{product.discount_percent}% OFF</p>
-                        </>
-                      ) : (
-                        <p className="text-xl font-light text-foreground">₹{product.mrp}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
+            {/* Mobile */}
+            <div className="lg:hidden">
+              <div
+                className="aspect-square bg-white rounded-2xl flex items-center justify-center relative overflow-hidden"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                onClick={() => setIsZoomOpen(true)}
+              >
+                <div className="absolute inset-0 bg-gradient-to-b from-white to-gray-50" />
 
-                {/* Size Selection */}
-                <div className="space-y-3 py-4 border-b border-border">
-                  <h3 className="text-sm font-light text-foreground">Size</h3>
-                  <div className="flex gap-2">
-                    {(product.sizes || []).map((size) => (
-                      <button
-  key={size}
-  onClick={() => setSelectedSize(size)}
-  className={`w-14 h-14 rounded-lg border text-sm font-medium flex items-center justify-center transition-all duration-200 ${
-    selectedSize === size
-      ? "bg-black text-white border-black shadow-md scale-105"
-      : "bg-white text-black border-gray-300 hover:border-black hover:scale-105"
-  }`}
->
-  {size}
-</button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Color Selection */}
-                <div className="space-y-3 py-4 border-b border-border">
-                  <h3 className="text-sm font-light text-foreground">Color</h3>
-                  <div className="flex gap-3">
-                    {(product.colors || []).map((color) => (
-                      <button key={color} onClick={() => setSelectedColor(color)} className={`px-4 py-2 border text-sm font-light transition-colors ${selectedColor === color ? 'border-foreground bg-foreground text-background' : 'border-border text-foreground hover:border-foreground'}`}>
-                        {color}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {product.description && (
-                  <div className="space-y-2 py-4 border-b border-border">
-                    <h3 className="text-sm font-light text-foreground">Description</h3>
-                    <p className="text-sm font-light text-muted-foreground">{product.description}</p>
-                  </div>
-                )}
-
-                {/* Quantity, Add to Cart, Wishlist */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm font-light text-foreground">Quantity</span>
-                    <div className="flex items-center border border-border">
-                      <Button variant="ghost" size="sm" onClick={() => setQuantity(Math.max(1, quantity - 1))} className="h-10 w-10 p-0 hover:bg-transparent hover:opacity-50 rounded-none border-none"><Minus className="h-4 w-4" /></Button>
-                      <span className="h-10 flex items-center px-4 text-sm font-light min-w-12 justify-center border-l border-r border-border">{quantity}</span>
-                      <Button variant="ghost" size="sm" onClick={() => setQuantity(quantity + 1)} className="h-10 w-10 p-0 hover:bg-transparent hover:opacity-50 rounded-none border-none"><Plus className="h-4 w-4" /></Button>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <Button onClick={handleAddToCart} className="flex-1 h-12 bg-foreground text-background hover:bg-foreground/90 font-light rounded-none">
-                      Add to Bag
-                    </Button>
-                    <Button variant="outline" size="icon" onClick={() => { toggleItem(product.id); toast({ title: inWishlist ? "Removed from wishlist" : "Added to wishlist" }); }} className={`h-12 w-12 rounded-none ${inWishlist ? 'bg-foreground text-background hover:bg-foreground/90' : ''}`}>
-                      <Heart className={`h-5 w-5 ${inWishlist ? 'fill-current' : ''}`} />
-                    </Button>
-                  </div>
-
-                  {product.stock !== null && product.stock <= 5 && product.stock > 0 && (
-                    <p className="text-xs text-destructive">Only {product.stock} left in stock!</p>
-                  )}
-                  {product.stock === 0 && (
-                    <p className="text-xs text-destructive">Out of stock</p>
-                  )}
-                </div>
+                <img
+                  src={images[currentImageIndex]}
+                  className="relative z-10 max-w-[85%] max-h-[85%] object-contain"
+                />
               </div>
-              <ProductDescription />
             </div>
+
+            <ImageZoom
+              images={images}
+              initialIndex={currentImageIndex}
+              isOpen={isZoomOpen}
+              onClose={() => setIsZoomOpen(false)}
+            />
           </div>
-        </section>
-        
-        <section className="w-full mt-16 lg:mt-24">
-          <div className="mb-4 px-6">
-            <h2 className="text-sm font-light text-foreground">You might also like</h2>
+
+          {/* ================= INFO ================= */}
+          <div className="space-y-8">
+
+            <h1 className="text-4xl font-medium tracking-wide">
+              {product.name}
+            </h1>
+
+            {/* Price */}
+            <div>
+              {product.discount_percent ? (
+                <>
+                  <p className="line-through text-gray-400">
+                    ₹{product.mrp}
+                  </p>
+                  <p className="text-3xl font-semibold">
+                    ₹{product.final_price}
+                  </p>
+                </>
+              ) : (
+                <p className="text-3xl font-semibold">
+                  ₹{product.mrp}
+                </p>
+              )}
+            </div>
+
+            {/* Sizes */}
+            <div>
+              <p className="mb-2">Size</p>
+              <div className="flex gap-3">
+                {product.sizes?.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`w-12 h-12 border rounded-lg transition-all ${
+                      selectedSize === size
+                        ? "bg-black text-white scale-110 shadow-lg"
+                        : "hover:scale-105"
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quantity */}
+            <div className="flex items-center gap-4">
+              <Button onClick={() => setQuantity(quantity - 1)}>
+                <Minus />
+              </Button>
+
+              {quantity}
+
+              <Button onClick={() => setQuantity(quantity + 1)}>
+                <Plus />
+              </Button>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex gap-4">
+              <Button
+                onClick={handleAddToCart}
+                className="flex-1 h-14 text-lg bg-black text-white hover:bg-black/90 shadow-xl"
+              >
+                Add to Bag
+              </Button>
+
+              <Button
+                onClick={() => toggleItem(product.id)}
+                variant="outline"
+              >
+                <Heart />
+              </Button>
+            </div>
+
+            {/* Description */}
+            <p className="text-gray-600">{product.description}</p>
           </div>
+        </div>
+
+        {/* Carousel */}
+        <div className="mt-24">
           <ProductCarousel />
-        </section>
+        </div>
       </main>
-      
+
       <Footer />
     </div>
   );

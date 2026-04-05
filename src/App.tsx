@@ -1,5 +1,5 @@
 import { Navigate, BrowserRouter, Routes, Route } from "react-router-dom";
-
+import Product from "./pages/Product";
 import ResetPassword from "./pages/admin/ResetPassword";
 import Security from "@/pages/account/Security";
 import Orders from "./pages/account/Orders";
@@ -55,6 +55,7 @@ const App = () => (
 
                 <Route path="/category/:category" element={<Category />} />
                 <Route path="/product/:productId" element={<ProductDetail />} />
+                <Route path="/products" element={<Product />} />
                 <Route path="/checkout" element={<Checkout />} />
 
                 <Route path="/account" element={<Account />} />
