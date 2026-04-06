@@ -25,64 +25,73 @@ const Index = () => {
     <div className="min-h-screen bg-white overflow-x-hidden">
       <Header />
 
-      <main className="pt-6">
+      <main className="pt-20">
 
         {/* 🔥 HERO */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-          className="relative h-[90vh] flex items-center justify-center mx-6 mb-16 rounded-3xl overflow-hidden bg-black"
-        >
+        {/* 🔥 HERO */}
+<motion.div
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ duration: 1 }}
+  className="relative h-[92vh] flex items-center justify-center mx-6 mb-20 rounded-3xl overflow-hidden bg-black"
+>
 
-          {/* PREMIUM WHITE SHOE IMAGE */}
-          <motion.img
-            src="https://images.pexels.com/photos/1456706/pexels-photo-1456706.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-            className="absolute inset-0 w-full h-full object-cover scale-105 blur-[1px]"
-            animate={{ scale: 1.05 }}
-            transition={{ duration: 6, repeat: Infinity, repeatType: "mirror" }}
-          />
+  {/* BACKGROUND IMAGE */}
+  <motion.img
+    src="https://images.pexels.com/photos/1456706/pexels-photo-1456706.jpeg"
+    className="absolute inset-0 w-full h-full object-cover scale-110"
+    animate={{ scale: 1.1 }}
+    transition={{ duration: 8, repeat: Infinity, repeatType: "mirror" }}
+  />
 
-          {/* GRADIENT */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/80" />
+  {/* DARK OVERLAY */}
+  <div className="absolute inset-0 bg-black/60" />
 
-          {/* CONTENT */}
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate="show"
-            className="relative text-center text-white px-6 max-w-2xl"
-          >
-            <h1 className="text-5xl md:text-7xl font-semibold tracking-[0.30em] mb-6">
-              NAVYA SHOE GARDEN
-            </h1>
+  {/* LIGHT GLOW */}
+  <div className="absolute bottom-0 w-full h-40 bg-gradient-to-t from-black to-transparent opacity-70" />
 
-            <p className="text-gray-300 text-lg mb-8">
-              Premium Footwear. Timeless Style.
-            </p>
+  {/* CONTENT */}
+  <motion.div
+    variants={fadeUp}
+    initial="hidden"
+    animate="show"
+    className="relative text-center text-white px-6"
+  >
 
-            <div className="flex justify-center gap-4">
-              <motion.button
-               onClick={() => navigate("/category/shop")}
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-white text-black px-8 py-3 rounded-full shadow-lg font-medium"
-              >
-                Shop Now
-              </motion.button>
+    <h1 className="text-5xl md:text-7xl font-semibold tracking-[0.4em] mb-6">
+      NAVYA
+    </h1>
 
-              <motion.button
-               onClick={() => window.scrollTo({ top: window.innerHeight, behavior: "smooth" })}
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.95 }}
-                className="border border-white px-8 py-3 rounded-full"
-              >
+    <p className="text-gray-300 text-lg mb-8 tracking-widest">
+      PREMIUM FOOTWEAR EXPERIENCE
+    </p>
 
-                Explore
-              </motion.button>
-            </div>
-          </motion.div>
-        </motion.div>
+    <div className="flex justify-center gap-4">
+
+      <motion.button
+        onClick={() => navigate("/category/shop")}
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.95 }}
+        className="bg-white text-black px-8 py-3 rounded-full font-medium transition-all duration-300"
+      >
+        Shop Now
+      </motion.button>
+
+      <motion.button
+        onClick={() =>
+          window.scrollTo({ top: window.innerHeight, behavior: "smooth" })
+        }
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.95 }}
+        className="border border-white px-8 py-3 rounded-full transition-all duration-300 hover:bg-white hover:text-black"
+      >
+        Explore
+      </motion.button>
+
+    </div>
+
+  </motion.div>
+</motion.div>
 
         {/* 🔥 SECTIONS WITH SCROLL ANIMATION */}
         <div className="space-y-16">
