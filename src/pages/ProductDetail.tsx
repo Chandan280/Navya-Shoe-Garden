@@ -78,28 +78,6 @@ const ProductDetail = () => {
     fetchProduct();
   }, [productId]);
 
-  // ================= CART =================
-  const handleAddToCart = () => {
-    if (!product) return;
-
-    if (!selectedSize || !selectedColor) {
-      toast({ title: "Select size & color", variant: "destructive" });
-      return;
-    }
-
-    addItem({
-      productId: product.id,
-      name: product.name,
-      price: product.final_price || product.mrp,
-      mrp: product.mrp,
-      image: product.images?.[0] || "",
-      quantity,
-      size: selectedSize,
-      color: selectedColor,
-    });
-
-    toast({ title: "Added to bag 🛍️" });
-  };
 
   // ================= TOUCH SWIPE =================
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -274,12 +252,25 @@ const ProductDetail = () => {
             {/* Buttons */}
             <div className="flex gap-4">
               <Button
-                onClick={handleAddToCart}
-                className="flex-1 h-14 text-lg bg-black text-white hover:bg-black/90 shadow-xl"
-              >
-                Add to Bag
-              </Button>
+  onClick={() => {
+    if (!selectedSize) {
+      alert("Please select size");
+      return;
+    }
 
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.final_price ?? product.mrp,
+      image: product.images?.[0],
+      size: selectedSize,
+      quantity: quantity,
+    });
+  }}
+  className="flex-1 h-14 text-lg bg-black text-white hover:opacity-90 transition"
+>
+  Add to Bag
+</Button>
               <Button
                 onClick={() => toggleItem(product.id)}
                 variant="outline"

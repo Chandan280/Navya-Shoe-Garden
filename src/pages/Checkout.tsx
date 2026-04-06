@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Minus, Plus, Check, CheckCircle } from "lucide-react";
 import CheckoutHeader from "../components/header/CheckoutHeader";
 import Footer from "../components/footer/Footer";
@@ -47,6 +47,31 @@ const Checkout = () => {
       }
     }
   };
+
+  const fetchCityState = async (pincode: string) => {
+    try {
+      const res = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+      const data = await res.json();
+
+      if (data[0]?.Status === "Success") {
+        const postOffice = data[0].PostOffice[0];
+
+        setCustomerDetails((prev) => ({
+          ...prev,
+          city: postOffice.District,
+          state: postOffice.State,
+        }));
+      }
+    } catch (error) {
+      console.error("Pincode fetch error:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (customerDetails.pincode.length === 6) {
+      fetchCityState(customerDetails.pincode);
+    }
+  }, [customerDetails.pincode]);
 
   const sendWhatsAppToAdmin = (orderId: string) => {
     const itemsText = items
@@ -224,11 +249,27 @@ const Checkout = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <Label htmlFor="city" className="text-sm font-light text-foreground">City *</Label>
-                      <Input id="city" type="text" value={customerDetails.city} onChange={(e) => handleChange("city", e.target.value)} className="mt-2 rounded-none" placeholder="City" />
+                      <Input
+                        id="city"
+                        type="text"
+                        value={customerDetails.city}
+                        onChange={(e) => handleChange("city", e.target.value)}
+                        className="mt-2 rounded-none"
+                        placeholder="City"
+                        readOnly
+                      />
                     </div>
                     <div>
                       <Label htmlFor="state" className="text-sm font-light text-foreground">State *</Label>
-                      <Input id="state" type="text" value={customerDetails.state} onChange={(e) => handleChange("state", e.target.value)} className="mt-2 rounded-none" placeholder="State" />
+                      <Input
+                        id="state"
+                        type="text"
+                        value={customerDetails.state}
+                        onChange={(e) => handleChange("state", e.target.value)}
+                        className="mt-2 rounded-none"
+                        placeholder="State"
+                        readOnly
+                      />
                     </div>
                     <div>
                       <Label htmlFor="pincode" className="text-sm font-light text-foreground">Pincode *</Label>

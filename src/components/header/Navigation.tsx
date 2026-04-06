@@ -4,7 +4,7 @@ import { signInWithGoogle } from "@/lib/auth";
 import { useEffect } from "react";
 import { ArrowRight, X, ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import ShoppingBag from "./ShoppingBag";
@@ -83,6 +83,19 @@ const Navigation = () => {
 
   const [profileName, setProfileName] = useState("");
 
+  const navigate = useNavigate();
+
+// 🔥 PREMIUM SEARCH
+const [search, setSearch] = useState("");
+const [debouncedSearch, setDebouncedSearch] = useState("");
+
+
+
+
+
+
+
+
   useEffect(() => {
   const fetchProfile = async () => {
     const { data: userData } = await supabase.auth.getUser();
@@ -101,6 +114,14 @@ const Navigation = () => {
 
   fetchProfile();
 }, []);
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setDebouncedSearch(search);
+  }, 300);
+
+  return () => clearTimeout(timer);
+}, [search]);
+
 
   const handleLogout = async () => {
   await supabase.auth.signOut();
@@ -118,7 +139,17 @@ const Navigation = () => {
   };
 
   const popularSearches = ["Men's Shoes", "Women's Heels", "Kids Sandals", "Slippers", "New Arrivals", "Sale"];
-  
+  // 🔥 ADD THIS EXACTLY HERE
+const suggestions = [
+  "Nike",
+  "Adidas",
+  "Sneakers",
+  "Running Shoes",
+  "Formal Shoes",
+  "Slippers",
+].filter((item) =>
+  item.toLowerCase().includes(debouncedSearch.toLowerCase())
+);
   const navItems = [
     { name: "Shop", href: "/category/shop" },
     { name: "New In", href: "/category/new-in" },
@@ -353,15 +384,41 @@ const Navigation = () => {
               <div className="relative mb-8">
                 <div className="flex items-center border-b border-border pb-2">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 text-nav-foreground mr-3"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
-                  <input type="text" placeholder="Search for footwear..." className="flex-1 bg-transparent text-nav-foreground placeholder:text-nav-foreground/60 outline-none text-lg" autoFocus />
+                  <input type="text" placeholder="Search for footwear..."value={search}onChange={(e) => setSearch(e.target.value)}onKeyDown={(e) => {if (e.key === "Enter" && search.trim() !== "") {e.preventDefault();navigate(`/category/shop?search=${search}`);setIsSearchOpen(false);setSearch("");}}}className="flex-1 bg-transparent text-nav-foreground placeholder:text-nav-foreground/60 outline-none text-lg"autoFocus/>
                 </div>
+                {debouncedSearch && suggestions.length > 0 && (
+  <div className="absolute left-0 right-0 mt-3 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+    {suggestions.map((item, index) => (
+      <div
+        key={index}
+        onClick={() => {
+          navigate(`/category/shop?search=${item}`);
+          setIsSearchOpen(false);
+          setSearch("");
+        }}
+        className="cursor-pointer text-sm text-gray-700 hover:text-black hover:bg-gray-100 px-4 py-2 rounded-lg transition-all duration-200"
+      >
+        {item}
+      </div>
+    ))}
+  </div>
+)}
               </div>
               <div>
                 <h3 className="text-nav-foreground text-sm font-light mb-4">Popular Searches</h3>
                 <div className="flex flex-wrap gap-3">
-                  {popularSearches.map((search, index) => (
-                    <button key={index} className="text-nav-foreground hover:text-nav-hover text-sm font-light py-2 px-4 border border-border rounded-full transition-colors duration-200 hover:border-nav-hover">{search}</button>
-                  ))}
+                  {popularSearches.map((item, index) => (
+  <button
+    key={index}
+    onClick={() => {
+      navigate(`/category/shop?search=${item}`);
+      setIsSearchOpen(false);
+    }}
+    className="text-nav-foreground hover:text-nav-hover text-sm font-light py-2 px-4 border border-border rounded-full transition-all duration-200 hover:border-nav-hover hover:scale-105 active:scale-95"
+  >
+    {item}
+  </button>
+))}
                 </div>
               </div>
             </div>

@@ -28,8 +28,13 @@ interface FilterSortBarProps {
   availableColors: string[];
 }
 
-const priceRanges = ["Under ₹500", "₹500 - ₹1,000", "₹1,000 - ₹2,000", "Over ₹2,000"];
-const sizes = ["6", "7", "8", "9", "10"];
+const priceRanges = [
+  "Under ₹1500",
+  "₹1500 - ₹3000",
+  "₹3000 - ₹6000",
+  "Above ₹6000"
+];
+const sizes = ["6", "7", "8", "9", "10", "11", "12"]
 
 const toggleArrayItem = (arr: string[], item: string) =>
   arr.includes(item) ? arr.filter((i) => i !== item) : [...arr, item];
