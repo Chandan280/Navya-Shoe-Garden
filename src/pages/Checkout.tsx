@@ -114,19 +114,19 @@ const Checkout = () => {
       .from("orders")
       .insert({
         created_at: new Date().toISOString(),
-         user_id: userData.user?.id,   // ✅ ADD THIS LINE
+        user_id: userData?.user?.id || null,
         customer_name: customerDetails.name,
         phone: customerDetails.phone,
         address: fullAddress,
         city: customerDetails.city,
         state: customerDetails.state,
         pincode: customerDetails.pincode,
-      total_amount: totalPrice + getDeliveryCharge(totalPrice),
-      payment_type: paymentType,
-      payment_status: paymentType === "COD" ? "pending" : "paid",
-    })
-    .select()
-    .single();
+        total_amount: totalPrice + getDeliveryCharge(totalPrice),
+        payment_type: paymentType,
+        payment_status: paymentType === "COD" ? "pending" : "paid",
+      })
+      .select()
+      .single();
 
     if (orderError || !order) {
       toast({ title: "Order failed", description: orderError?.message, variant: "destructive" });
@@ -137,13 +137,13 @@ const Checkout = () => {
     // Insert order items
     const orderItems = items.map((item) => ({
       order_id: order.id,
-      product_id: item.productId,
+      product_id: item.productId || item.id,
       product_name: item.name,
       quantity: item.quantity,
-      size: item.size,
-      color: item.color,
+      size: item.size || null,
+      color: item.color || null,
       price: item.price * item.quantity,
-      image: item.image
+      image: item.image || null,
     }));
 
     await supabase.from("order_items").insert(orderItems);

@@ -18,7 +18,7 @@ interface Order {
   total_amount: number;
   payment_type: string;
   payment_status: string | null;
-  order_status: string | null;
+  status: string | null;
   created_at: string;
   items?: OrderItem[];
 }
@@ -46,12 +46,22 @@ const AdminOrders = () => {
       .select("*")
       .in("order_id", orderIds);
 
-    const ordersWithItems = ordersData.map((order) => ({
+    const ordersWithItems: Order[] = ordersData.map((order) => ({
       ...order,
+      status: (order as any).status ?? "Pending",
       items: itemsData?.filter((item) => item.order_id === order.id) || [],
     }));
 
     setOrders(ordersWithItems);
+  };
+
+  const updateStatus = async (id: string, status: string) => {
+    await supabase
+      .from("orders")
+      .update({ status })
+      .eq("id", id);
+
+    fetchOrders();
   };
 
   return (
@@ -83,9 +93,17 @@ const AdminOrders = () => {
                       </span>
                     </div>
                     <div>
-                      <span className="text-xs text-muted-foreground">
-                        {order.order_status}
-                      </span>
+                      <select
+                        value={order.status || "Pending"}
+                        onChange={(e) => updateStatus(order.id, e.target.value)}
+                        className="text-xs border px-2 py-1 rounded-md"
+                      >
+                        <option>Pending</option>
+                        <option>Confirmed</option>
+                        <option>Shipped</option>
+                        <option>Delivered</option>
+                        <option>Cancelled</option>
+                      </select>
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground">

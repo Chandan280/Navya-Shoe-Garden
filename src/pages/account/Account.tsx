@@ -34,19 +34,26 @@ const Account = () => {
 
       if (!userData.user) return;
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
         .select("full_name")
         .eq("id", userData.user.id)
-        .single();
+        .maybeSingle();
+
+      if (error) {
+        console.log("Profile fetch error:", error);
+      }
 
       setProfileName(
-        data?.full_name || userData.user.email.split("@")[0]
+        data?.full_name ??
+        userData.user.user_metadata?.full_name ??
+        userData.user.email?.split("@")[0] ??
+        "User"
       );
     };
 
     fetchProfile();
-  }, []);
+  }, [user]);
 
   // ❌ OLD (kept for fallback, not used directly)
   const username = user?.email?.split("@")[0] || "User";

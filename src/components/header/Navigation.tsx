@@ -124,8 +124,10 @@ useEffect(() => {
 
 
   const handleLogout = async () => {
-  await supabase.auth.signOut();
-};
+    await supabase.auth.signOut();
+    navigate("/");
+    window.location.reload();
+  };
 
    
   
@@ -303,29 +305,35 @@ const suggestions = [
         </div>
 
         <div className="flex flex-col text-sm">
-          <Link
-            to="/account"
-            className="px-4 py-2 hover:bg-gray-100"
-            onClick={() => setActiveDropdown(null)}
+          <div
+            onClick={() => {
+              navigate("/account");
+              setActiveDropdown(null);
+            }}
+            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
           >
             My Account
-          </Link>
+          </div>
 
-          <Link
-            to="/account/orders"
-            className="px-4 py-2 hover:bg-gray-100"
-            onClick={() => setActiveDropdown(null)}
+          <div
+            onClick={() => {
+              navigate("/account/orders");
+              setActiveDropdown(null);
+            }}
+            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
           >
             Orders
-          </Link>
+          </div>
 
-          <Link
-            to="/account/addresses"
-            className="px-4 py-2 hover:bg-gray-100"
-            onClick={() => setActiveDropdown(null)}
+          <div
+            onClick={() => {
+              navigate("/account/addresses");
+              setActiveDropdown(null);
+            }}
+            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
           >
             Addresses
-          </Link>
+          </div>
 
           <button
             onClick={handleLogout}

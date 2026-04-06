@@ -7,7 +7,6 @@ const Orders = () => {
   const { addItem } = useCart(); // ✅ ADDED
 
   const [orders, setOrders] = useState<any[]>([]);
-  const [orderItems, setOrderItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
@@ -23,24 +22,21 @@ const Orders = () => {
       return;
     }
 
-    const { data: ordersData } = await supabase
+    const { data } = await supabase
       .from("orders")
-      .select("*")
+      .select(`
+        *,
+        order_items (*)
+      `)
       .eq("user_id", userData.user.id)
       .order("created_at", { ascending: false });
 
-    const { data: itemsData } = await supabase
-      .from("order_items")
-      .select("*");
-
-    if (ordersData) setOrders(ordersData);
-    if (itemsData) setOrderItems(itemsData);
+    if (data) {
+      setOrders(data);
+    }
 
     setLoading(false);
   };
-
-  const getItems = (orderId: string) =>
-    orderItems.filter((item) => item.order_id === orderId);
 
   const toggleOrder = (id: string) => {
     setExpandedOrder(expandedOrder === id ? null : id);
@@ -49,7 +45,7 @@ const Orders = () => {
   const cancelOrder = async (orderId: string) => {
     await supabase
       .from("orders")
-      .update({ payment_status: "cancelled" })
+      .update({ status: "cancelled" })
       .eq("id", orderId);
 
     fetchOrders();
@@ -59,7 +55,7 @@ const Orders = () => {
   const handleReorder = (items: any[]) => {
     items.forEach((item) => {
       addItem({
-        id: Date.now() + Math.random(),
+        id: item.product_id,
         productId: item.product_id,
         name: item.product_name,
         price: item.price / item.quantity,
@@ -112,7 +108,7 @@ const Orders = () => {
       ) : (
         <div className="space-y-6">
           {orders.map((order) => {
-            const items = getItems(order.id);
+            const items = order.order_items || [];
             const isOpen = expandedOrder === order.id;
 
             return (
@@ -145,10 +141,10 @@ const Orders = () => {
 
                     <div
                       className={`text-xs px-3 py-1 border rounded-full ${getStatusStyle(
-                        order.payment_status
+                        order.status
                       )}`}
                     >
-                      {order.payment_status}
+                      {order.status || "Pending"}
                     </div>
                   </div>
                 </div>
@@ -159,7 +155,7 @@ const Orders = () => {
 
                     {/* TIMELINE */}
                     <div className="flex justify-between text-xs text-gray-500">
-                      {getTimeline(order.payment_status).map((t, i) => (
+                      {getTimeline(order.status).map((t, i) => (
                         <div key={i} className="flex flex-col items-center flex-1">
                           <div
                             className={`w-3 h-3 rounded-full ${
@@ -217,7 +213,7 @@ const Orders = () => {
                         Reorder
                       </button>
 
-                      {order.payment_status !== "cancelled" && (
+                      {order.status !== "cancelled" && (
                         <button
                           onClick={() => cancelOrder(order.id)}
                           className="px-4 py-2 text-sm border rounded-lg hover:bg-red-500 hover:text-white transition"
