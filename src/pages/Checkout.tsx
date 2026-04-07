@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Minus, Plus, Check, CheckCircle } from "lucide-react";
 import CheckoutHeader from "../components/header/CheckoutHeader";
 import Footer from "../components/footer/Footer";
@@ -22,6 +23,7 @@ const getDeliveryCharge = (subtotal: number) => {
 
 const Checkout = () => {
   const { items, updateQuantity, totalPrice, clearCart } = useCart();
+  const navigate = useNavigate();
   const { toast } = useToast();
   
   const [customerDetails, setCustomerDetails] = useState({
@@ -98,6 +100,10 @@ const Checkout = () => {
       toast({ title: "Your cart is empty", variant: "destructive" });
       return;
     }
+    if (!items.every((item) => item.productId && item.size)) {
+      toast({ title: "Invalid product data", variant: "destructive" });
+      return;
+    }
 
     setIsProcessing(true);
 
@@ -137,10 +143,10 @@ const Checkout = () => {
     // Insert order items
     const orderItems = items.map((item) => ({
       order_id: order.id,
-      product_id: item.productId || item.id,
+      product_id: item.productId,
       product_name: item.name,
       quantity: item.quantity,
-      size: item.size || null,
+      size: item.size,
       color: item.color || null,
       price: item.price * item.quantity,
       image: item.image || null,
@@ -152,27 +158,11 @@ const Checkout = () => {
     sendWhatsAppToAdmin(order.id);
 
     clearCart();
-    setPaymentComplete(true);
+    navigate("/order-success", {
+      state: { orderId: order.id },
+    });
     setIsProcessing(false);
   };
-
-  if (paymentComplete) {
-    return (
-      <div className="min-h-screen bg-background">
-        <CheckoutHeader />
-        <main className="pt-6 pb-12">
-          <div className="max-w-lg mx-auto px-6 text-center py-24">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <Check className="h-8 w-8 text-green-600" />
-            </div>
-            <h3 className="text-xl font-light text-foreground mb-2">Order Placed!</h3>
-            <p className="text-muted-foreground">Thank you for your order. We'll contact you soon to confirm delivery.</p>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">

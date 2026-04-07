@@ -282,10 +282,11 @@ const suggestions = [
     >
       <img
         src={
-          user.user_metadata?.avatar_url ||
-         `https://ui-avatars.com/api/?name=${profileName}`
+          user?.user_metadata?.avatar_url ||
+          `https://ui-avatars.com/api/?name=${encodeURIComponent(profileName)}`
         }
-        className="w-9 h-9 rounded-full border"
+        className="w-9 h-9 rounded-full border object-cover"
+        alt="profile"
       />
       <span className="text-sm font-medium hidden md:block">
   {profileName}

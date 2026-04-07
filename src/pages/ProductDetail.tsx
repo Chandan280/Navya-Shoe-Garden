@@ -44,6 +44,23 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [sizeStock, setSizeStock] = useState<number | null>(null);
+  useEffect(() => {
+    const fetchStock = async () => {
+      if (!productId || !selectedSize) return;
+
+      const { data } = await (supabase as any)
+        .from("product_sizes")
+        .select("stock")
+        .eq("product_id", productId)
+        .eq("size", selectedSize)
+        .single();
+
+      if (data) setSizeStock(data.stock);
+    };
+
+    fetchStock();
+  }, [productId, selectedSize]);
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
@@ -60,7 +77,7 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       if (!productId) return;
 
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("products")
         .select("*")
         .eq("id", productId)
@@ -132,7 +149,7 @@ const ProductDetail = () => {
           <div>
             {/* Desktop */}
             <div className="hidden lg:block space-y-8">
-              {images.map((image, index) => (
+              {images.map((image: string, index: number) => (
                 <div
                   key={index}
                   className="aspect-square bg-white rounded-2xl flex items-center justify-center relative overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-500"
@@ -177,7 +194,7 @@ const ProductDetail = () => {
                 <div className="absolute inset-0 bg-gradient-to-b from-white to-gray-50" />
 
                 <img
-                  src={images[currentImageIndex]}
+                  src={images[currentImageIndex] || ""}
                   className="relative z-10 max-w-[85%] max-h-[85%] object-contain"
                 />
               </div>
@@ -220,7 +237,7 @@ const ProductDetail = () => {
             <div>
               <p className="mb-2">Size</p>
               <div className="flex gap-3">
-                {product.sizes?.map((size) => (
+                {product.sizes?.map((size: string) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
@@ -238,7 +255,7 @@ const ProductDetail = () => {
 
             {/* Quantity */}
             <div className="flex items-center gap-4">
-              <Button onClick={() => setQuantity(quantity - 1)}>
+              <Button onClick={() => setQuantity(Math.max(1, quantity - 1))}>
                 <Minus />
               </Button>
 
@@ -257,19 +274,26 @@ const ProductDetail = () => {
       alert("Please select size");
       return;
     }
+    if (!product) return;
+
+    if (sizeStock !== null && sizeStock <= 0) {
+      alert("Out of stock");
+      return;
+    }
 
     addItem({
       id: product.id,
+      productId: product.id,
       name: product.name,
       price: product.final_price ?? product.mrp,
-      image: product.images?.[0],
+      image: product.images?.[0] || "",
       size: selectedSize,
       quantity: quantity,
-    });
+    } as any);
   }}
   className="flex-1 h-14 text-lg bg-black text-white hover:opacity-90 transition"
 >
-  Add to Bag
+  {sizeStock === 0 ? "Out of Stock" : "Add to Bag"}
 </Button>
               <Button
                 onClick={() => toggleItem(product.id)}

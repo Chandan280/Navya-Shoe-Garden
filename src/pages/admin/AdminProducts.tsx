@@ -35,6 +35,7 @@ const ALL_SIZES = ["6", "7", "8", "9", "10"];
 const ALL_COLORS = ["Black", "Brown", "White"];
 
 const AdminProducts = () => {
+  const db = supabase as any;
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -60,13 +61,13 @@ const AdminProducts = () => {
   }, []);
 
   const fetchProducts = async () => {
-    const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
-    if (data) setProducts(data);
+    const { data } = await db.from("products").select("*").order("created_at", { ascending: false }) as { data: any[] };
+    if (data) setProducts(data as any);
   };
 
   const fetchCategories = async () => {
-    const { data } = await supabase.from("categories").select("*").order("name");
-    if (data) setCategories(data);
+    const { data } = await db.from("categories").select("*").order("name") as { data: any[] };
+    if (data) setCategories(data as any);
   };
 
   const getCategoryPath = (catId: string): string => {
@@ -150,7 +151,7 @@ leafCategories.sort((a, b) => {
       const ext = file.name.split(".").pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
 
-      const { error } = await supabase.storage
+      const { error } = await db.storage
         .from("product-images")
         .upload(fileName, file);
 
@@ -159,7 +160,7 @@ leafCategories.sort((a, b) => {
         continue;
       }
 
-      const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(fileName);
+      const { data: urlData } = db.storage.from("product-images").getPublicUrl(fileName);
       newImages.push(urlData.publicUrl);
     }
 
@@ -193,14 +194,14 @@ const productData = {
 };
 
     if (editingId) {
-      const { error } = await supabase.from("products").update(productData).eq("id", editingId);
+      const { error } = await db.from("products").update(productData as any).eq("id", editingId);
       if (error) {
         toast({ title: "Error", description: error.message, variant: "destructive" });
         return;
       }
       toast({ title: "Product updated" });
     } else {
-      const { error } = await supabase.from("products").insert(productData);
+      const { error } = await db.from("products").insert(productData as any);
       if (error) {
         toast({ title: "Error", description: error.message, variant: "destructive" });
         return;
@@ -214,7 +215,7 @@ const productData = {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this product?")) return;
-    const { error } = await supabase.from("products").delete().eq("id", id);
+    const { error } = await db.from("products").delete().eq("id", id as any);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
       return;

@@ -55,15 +55,15 @@ const Orders = () => {
   const handleReorder = (items: any[]) => {
     items.forEach((item) => {
       addItem({
-        id: item.product_id,
-        productId: item.product_id,
-        name: item.product_name,
-        price: item.price / item.quantity,
-        quantity: item.quantity,
-        size: item.size,
-        color: item.color,
-        image: item.image,
-      });
+        id: item.product_id as string,
+        productId: item.product_id as string,
+        name: item.product_name as string,
+        price: Number(item.price) / Number(item.quantity),
+        quantity: Number(item.quantity),
+        size: item.size as string,
+        color: item.color as string,
+        image: item.image as string,
+      } as any);
     });
   };
 
@@ -84,7 +84,7 @@ const Orders = () => {
         ? 0
         : status === "paid"
         ? 1
-        : status === "delivered"
+        : status === "delivered" 
         ? 3
         : -1;
 
@@ -94,10 +94,10 @@ const Orders = () => {
     }));
   };
 
-  if (loading) return <div className="p-6">Loading orders...</div>;
+if (loading) return <div className="p-8 text-gray-500">Loading your orders...</div>;
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-8 max-w-5xl mx-auto space-y-6 bg-gray-50 min-h-screen">
       <BackButton />
       <h1 className="text-3xl font-semibold mb-8">Your Orders</h1>
 
@@ -114,11 +114,11 @@ const Orders = () => {
             return (
               <div
                 key={order.id}
-                className="bg-white border rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300"
+                className="bg-white border rounded-3xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
               >
                 {/* HEADER */}
                 <div
-                  className="p-6 flex flex-col sm:flex-row justify-between gap-4 cursor-pointer"
+                  className="p-6 flex flex-col sm:flex-row justify-between gap-4 cursor-pointer hover:bg-gray-50 rounded-2xl transition"
                   onClick={() => toggleOrder(order.id)}
                 >
                   <div>
@@ -169,10 +169,10 @@ const Orders = () => {
 
                     {/* ITEMS */}
                     <div className="space-y-4">
-                      {items.map((item) => (
+                      {items.map((item: any) => (
                         <div
                           key={item.id}
-                          className="flex gap-4 items-center bg-gray-50 p-4 rounded-xl"
+                          className="flex gap-4 items-center bg-gray-50 p-4 rounded-xl hover:shadow-md transition"
                         >
                           <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden">
                             {item.image ? (
@@ -208,7 +208,7 @@ const Orders = () => {
                     <div className="flex flex-wrap gap-3 pt-2">
                       <button
                         onClick={() => handleReorder(items)} // ✅ CONNECTED
-                        className="px-4 py-2 text-sm border rounded-lg hover:bg-black hover:text-white transition"
+                        className="px-4 py-2 text-sm border rounded-lg hover:bg-black hover:text-white transition shadow-sm"
                       >
                         Reorder
                       </button>
@@ -216,7 +216,7 @@ const Orders = () => {
                       {order.status !== "cancelled" && (
                         <button
                           onClick={() => cancelOrder(order.id)}
-                          className="px-4 py-2 text-sm border rounded-lg hover:bg-red-500 hover:text-white transition"
+                          className="px-4 py-2 text-sm border rounded-lg hover:bg-red-500 hover:text-white transition shadow-sm"
                         >
                           Cancel Order
                         </button>
