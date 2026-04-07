@@ -33,13 +33,13 @@ const Index = () => {
   initial={{ opacity: 0 }}
   animate={{ opacity: 1 }}
   transition={{ duration: 1 }}
-  className="relative h-[92vh] flex items-center justify-center mx-6 mb-20 rounded-3xl overflow-hidden bg-black"
+  className="relative h-[70vh] sm:h-[85vh] flex items-center justify-center mx-4 sm:mx-6 mb-12 sm:mb-20 rounded-3xl overflow-hidden bg-black"
 >
 
   {/* BACKGROUND IMAGE */}
   <motion.img
     src="https://images.pexels.com/photos/1456706/pexels-photo-1456706.jpeg"
-    className="absolute inset-0 w-full h-full object-cover scale-110"
+    className="absolute inset-0 w-full h-full object-cover scale-100 sm:scale-110"
     animate={{ scale: 1.1 }}
     transition={{ duration: 8, repeat: Infinity, repeatType: "mirror" }}
   />
@@ -58,21 +58,21 @@ const Index = () => {
     className="relative text-center text-white px-6"
   >
 
-    <h1 className="text-5xl md:text-7xl font-semibold tracking-[0.4em] mb-6">
+    <h1 className="text-3xl sm:text-5xl md:text-7xl font-semibold tracking-[0.3em] sm:tracking-[0.4em] mb-4 sm:mb-6">
       NAVYA
     </h1>
 
-    <p className="text-gray-300 text-lg mb-8 tracking-widest">
+    <p className="text-gray-300 text-sm sm:text-lg mb-6 sm:mb-8 tracking-widest px-2 sm:px-0">
       PREMIUM FOOTWEAR EXPERIENCE
     </p>
 
-    <div className="flex justify-center gap-4">
+    <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 items-center">
 
       <motion.button
         onClick={() => navigate("/category/shop")}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.95 }}
-        className="bg-white text-black px-8 py-3 rounded-full font-medium transition-all duration-300"
+        className="bg-white text-black px-6 py-3 w-full sm:w-auto rounded-full font-medium transition-all duration-300"
       >
         Shop Now
       </motion.button>
@@ -83,7 +83,7 @@ const Index = () => {
         }
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.95 }}
-        className="border border-white px-8 py-3 rounded-full transition-all duration-300 hover:bg-white hover:text-black"
+        className="border border-white px-6 py-3 w-full sm:w-auto rounded-full transition-all duration-300 hover:bg-white hover:text-black"
       >
         Explore
       </motion.button>

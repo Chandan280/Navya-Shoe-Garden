@@ -232,8 +232,8 @@ const suggestions = [
 
   return (
     <nav className="relative" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)' }}>
-      <div className="flex items-center justify-between h-16 px-6">
-        <button className="lg:hidden p-2 mt-0.5 text-nav-foreground hover:text-nav-hover transition-colors duration-200" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} aria-label="Toggle menu">
+      <div className="flex items-center justify-between h-16 px-4 sm:px-6">
+        <button className="lg:hidden p-2.5 text-nav-foreground hover:text-nav-hover transition-colors duration-200 flex items-center justify-center" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} aria-label="Toggle menu">
           <div className="w-5 h-5 relative">
             <span className={`absolute block w-5 h-px bg-current transform transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 top-2.5' : 'top-1.5'}`}></span>
             <span className={`absolute block w-5 h-px bg-current transform transition-all duration-300 top-2.5 ${isMobileMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
@@ -249,13 +249,13 @@ const suggestions = [
           ))}
         </div>
 
-        <div className="absolute left-1/2 transform -translate-x-1/2">
+        <div className="absolute left-1/2 transform -translate-x-1/2 sm:static sm:transform-none">
           <Link to="/" className="block">
             <span className="text-sm sm:text-lg font-medium tracking-wide text-foreground whitespace-nowrap">NAVYA SHOE GARDEN</span>
           </Link>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-3 sm:space-x-2">
           <button className="p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200" aria-label="Search" onClick={() => setIsSearchOpen(!isSearchOpen)}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
           </button>
@@ -285,12 +285,12 @@ const suggestions = [
           user?.user_metadata?.avatar_url ||
           `https://ui-avatars.com/api/?name=${encodeURIComponent(profileName)}`
         }
-        className="w-9 h-9 rounded-full border object-cover"
+        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border object-cover"
         alt="profile"
       />
-      <span className="text-sm font-medium hidden md:block">
-  {profileName}
-</span>
+      <span className="text-sm font-medium hidden lg:block">
+        {profileName}
+      </span>
     </button>
 
     {/* DROPDOWN */}
@@ -349,9 +349,12 @@ const suggestions = [
 ) : (
   <button
     onClick={signInWithGoogle}
-    className="text-xs text-nav-foreground hover:text-nav-hover"
+    className="p-2 text-nav-foreground hover:text-nav-hover flex items-center justify-center"
+    aria-label="Login"
   >
-    Login
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM4.5 20.25a7.5 7.5 0 1 1 15 0v.75H4.5v-.75Z" />
+    </svg>
   </button>
 )}
         </div>
